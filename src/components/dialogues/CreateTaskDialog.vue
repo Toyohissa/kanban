@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import BaseDialogue from "../base/BaseDialog.vue";
 import { useBoardStore } from "../../pinia/board.pinia";
+import { ISubtask } from "../../ts/board.types";
 
 const useBoard = useBoardStore();
 const dialogActive = ref<boolean>(false);
@@ -9,17 +10,51 @@ const dialogActive = ref<boolean>(false);
 const dialogActivate = () => {
   dialogActive.value = true;
 };
-const subTasks = ref<string[]>([]);
+
+const subTasks = ref<ISubtask[]>([]);
 const title = ref<string>("");
 const description = ref<string>("");
-const id = useBoard.getAllBoards.find((el) => el.selected === true)?.id;
+
+const allBoards = computed(() => {
+  return useBoard.getAllBoards;
+});
+
+const selectedBoardId = computed(() => {
+  const selectedBoard = allBoards.value.find((e) => e.selected === true);
+  console.log("Selected Board:", selectedBoard);
+  return selectedBoard ? selectedBoard.id : null;
+});
+
+const handleSubmit = () => {
+  const boardId = selectedBoardId.value;
+  console.log("Selected Board ID:", boardId);
+  if (boardId !== null) {
+    try {
+      useBoard.addTodo(boardId, title.value, description.value, subTasks.value);
+      dialogActive.value = false;
+      title.value = "";
+      description.value = "";
+      subTasks.value = [];
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  } else {
+    console.error("No board selected");
+  }
+};
 </script>
+
 <template>
   <div>
-    <h1 @click="dialogActivate">Add Task</h1>
+    <h1
+      class="px-4 py-2 rounded-lg bg-white shadow-xl cursor-pointer hover:scale-105 hover:bg-[#635fc7] hover:text-white transition-all"
+      @click="dialogActivate"
+    >
+      Add Task
+    </h1>
     <BaseDialogue :closeable="true" title="Add Todo" v-model="dialogActive">
       <div
-        class="w-[400px] bg-white p-5 rounded-lg h-[500px] flex flex-col gap-5 overflow-y-scroll"
+        class="w-[400px] bg-white p-5 rounded-t-lg h-[500px] flex flex-col gap-5 overflow-y-scroll"
       >
         <div class="w-full">
           <h1>Title</h1>
@@ -35,7 +70,7 @@ const id = useBoard.getAllBoards.find((el) => el.selected === true)?.id;
             class="flex items-center gap-2"
             v-for="(subTask, index) in subTasks"
           >
-            <input v-model="subTasks[index]" type="text" class="w-full" />
+            <input v-model="subTasks[index].title" type="text" class="w-full" />
             <i
               @click="() => subTasks.splice(index, 1)"
               class="fa-solid fa-xmark cursor-pointer"
@@ -43,7 +78,7 @@ const id = useBoard.getAllBoards.find((el) => el.selected === true)?.id;
             ></i>
           </div>
           <button
-            @click="subTasks.push('')"
+            @click="subTasks.push({ title: '', status: false, id: Date.now() })"
             class="w-full text-sm rounded-r-full hover:text-white transition-all py-2 rounded-l-full bg-[#a8a4ff]"
           >
             Create a new Subtask
@@ -51,8 +86,8 @@ const id = useBoard.getAllBoards.find((el) => el.selected === true)?.id;
         </div>
       </div>
       <button
-        @click="useBoard.addTodo(id, title, description, subTasks)"
-        class="w-full text-sm rounded-r-full hover:text-white transition-all py-2 rounded-l-full bg-[#a8a4ff]"
+        @click="handleSubmit"
+        class="w-full text-sm rounded-b-lg hover:text-white transition-all py-2 bg-[#a8a4ff]"
       >
         Submit
       </button>

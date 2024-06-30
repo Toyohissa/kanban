@@ -4,9 +4,9 @@ import BoardComponent from "./components/BoardComponent.vue";
 </script>
 
 <template>
-  <div class="bg-[#e3ebfa] flex">
+  <div class="bg-[#e3ebfa] flex gap-2">
     <BoardSidebarComponent></BoardSidebarComponent>
-    <div id="fixed-components">
+    <div id="fixed-components" class="w-full">
       <BoardComponent></BoardComponent>
     </div>
   </div>

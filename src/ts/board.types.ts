@@ -7,7 +7,13 @@ export interface IBoard {
 export interface ITask {
   boardId: number;
   title: string;
-  subTasks: string[];
+  subTasks: ISubtask[];
   status: string;
   description: string;
+}
+
+export interface ISubtask {
+  title: string;
+  status: boolean;
+  id: number;
 }
