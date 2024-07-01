@@ -5,10 +5,23 @@ import TaskComponent from "../components/TaskComponent.vue";
 
 <template>
   <div class="flex flex-col p-2">
-    <div class="ml-auto flex-shrink-0">
+    <div class="ml-auto flex-shrink-0 p-5">
       <CreateTaskDialog></CreateTaskDialog>
     </div>
-    <TaskComponent></TaskComponent>
+    <div class="flex items-start justify-between p-5">
+      <div class="flex flex-col items-center gap-2 justify-center">
+        <TaskComponent statusToShow="Todo" desiredStatus="TODO"></TaskComponent>
+      </div>
+      <div class="flex flex-col items-center gap-2 justify-center">
+        <TaskComponent
+          statusToShow="In Progress"
+          desiredStatus="IN_PROGRESS"
+        ></TaskComponent>
+      </div>
+      <div class="flex flex-col items-center gap-2 justify-center">
+        <TaskComponent statusToShow="Done" desiredStatus="DONE"></TaskComponent>
+      </div>
+    </div>
   </div>
 </template>
 

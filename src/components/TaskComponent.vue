@@ -4,6 +4,11 @@ import { useBoardStore } from "../pinia/board.pinia";
 import { ITask } from "../ts/board.types";
 import BaseDialog from "./base/BaseDialog.vue";
 
+const props = defineProps<{
+  desiredStatus: string;
+  statusToShow: string;
+}>();
+
 const useBoard = useBoardStore();
 
 const allBoards = computed(() => {
@@ -15,11 +20,22 @@ const selectedBoardId = computed(() => {
   return selectedBoard ? selectedBoard.id : null;
 });
 
+const color = computed(() => {
+  return props.desiredStatus === "Todo"
+    ? "color: #49C4E5"
+    : props.desiredStatus === "In Progress"
+    ? "color: #8471F2"
+    : "color: #67E2AE";
+});
+
 const selectedBoardTasks = computed(() => {
   const boardId = selectedBoardId.value;
   if (boardId !== null) {
     const selectedBoard = allBoards.value.find((board) => board.id === boardId);
-    return selectedBoard ? selectedBoard.tasks : [];
+    const tasksToRender = selectedBoard?.tasks.filter(
+      (task) => task.status === props.desiredStatus
+    );
+    return selectedBoard ? tasksToRender : [];
   }
   return [];
 });
@@ -113,6 +129,16 @@ const readableStatus = computed(() => {
 <template>
   <div class="flex flex-col gap-2">
     <div
+      v-if="selectedBoardTasks?.length"
+      class="text-[#828FA3] flex items-center gap-3"
+    >
+      <i class="fa-solid fa-circle" :style="color"></i>
+      <h1>{{ props.statusToShow }}</h1>
+      <h1>
+        {{ selectedBoardTasks?.length }}
+      </h1>
+    </div>
+    <div
       class="bg-white p-2 shadow-xl w-[200px] min-h-[80px] flex flex-col items-center justify-center rounded-lg hover:scale-110 transition-all cursor-pointer"
       v-for="task in selectedBoardTasks"
       :key="task.taskId"
@@ -175,17 +201,23 @@ const readableStatus = computed(() => {
           >
           <div
             id="status"
-            @click.self="toggleDropdown"
+            @click="toggleDropdown"
             class="border rounded p-2 outline-none cursor-pointer relative"
           >
             <div>{{ readableStatus }}</div>
             <div
-              :class="statusDropdownActive ? 'max-h-[150px]' : 'max-h-0'"
-              class="absolute left-0 top-[50px] overflow-hidden w-full bg-white border rounded shadow-lg transition-all"
+              :class="
+                statusDropdownActive
+                  ? 'max-h-[200px] shadow-lg border rounded'
+                  : 'max-h-0'
+              "
+              class="absolute flex flex-col gap-2 left-0 top-[50px] overflow-hidden w-full bg-white transition-all"
             >
               <h1
                 v-for="status in statuses"
                 :key="status.value"
+                :class="status.text === readableStatus ? 'bg-[#E4EBFA]' : ''"
+                class="hover:bg-[#E4EBFA] p-2 m-1 rounded-lg"
                 @click.stop="selectStatus(status.value)"
               >
                 {{ status.text }}
@@ -197,7 +229,5 @@ const readableStatus = computed(() => {
     </BaseDialog>
   </div>
 </template>
-
-<style scoped></style>
 
 <style scoped></style>
