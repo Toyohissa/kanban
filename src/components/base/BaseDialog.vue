@@ -25,7 +25,7 @@ function closeDialog() {
       >
         <div class="flex justify-end items-center pb-6 w-full">
           <div
-            v-if="closeable"
+            v-if="props.closeable"
             class="w-8 h-8 hover:bg-white/20 rounded-full cursor-pointer flex justify-center items-center"
             @click="closeDialog"
           >

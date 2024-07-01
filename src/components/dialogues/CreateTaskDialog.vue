@@ -69,9 +69,9 @@ const handleSubmit = () => {
           <h1>Subtasks</h1>
           <div
             class="flex items-center gap-2"
-            v-for="(subTask, index) in subTasks"
+            v-for="(subtask, index) in subTasks"
           >
-            <input v-model="subTasks[index].title" type="text" class="w-full" />
+            <input v-model="subtask.title" type="text" class="w-full" />
             <i
               @click="() => subTasks.splice(index, 1)"
               class="fa-solid fa-xmark cursor-pointer"
