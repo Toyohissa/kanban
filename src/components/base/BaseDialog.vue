@@ -23,8 +23,7 @@ function closeDialog() {
       <div
         class="bg-card rounded-lg overflow-hidden p-6 flex flex-col w-fit relative z-20"
       >
-        <div class="flex justify-between items-center pb-6">
-          <h2 class="text-white font-bold text-lg">{{ props.title }}</h2>
+        <div class="flex justify-end items-center pb-6 w-full">
           <div
             v-if="closeable"
             class="w-8 h-8 hover:bg-white/20 rounded-full cursor-pointer flex justify-center items-center"

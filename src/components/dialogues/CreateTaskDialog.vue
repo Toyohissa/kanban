@@ -47,6 +47,7 @@ const handleSubmit = () => {
 <template>
   <div>
     <h1
+      v-if="selectedBoardId"
       class="px-4 py-2 rounded-lg bg-white shadow-xl cursor-pointer hover:scale-105 hover:bg-[#635fc7] hover:text-white transition-all"
       @click="dialogActivate"
     >

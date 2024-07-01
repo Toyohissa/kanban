@@ -10,6 +10,7 @@ export interface ITask {
   subTasks: ISubtask[];
   status: string;
   description: string;
+  taskId: number;
 }
 
 export interface ISubtask {

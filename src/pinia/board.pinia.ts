@@ -40,9 +40,10 @@ export const useBoardStore = defineStore("board", {
           subTasks,
           status: "TODO",
           description,
+          taskId: Date.now(),
         });
         console.log("Todo added successfully");
-        console.log(board.tasks);
+        console.log(board.tasks[board.tasks.length - 1].taskId);
       } else {
         console.error("Board not found");
       }
@@ -50,7 +51,7 @@ export const useBoardStore = defineStore("board", {
     changeSubtaskStatus(boardId: number, taskId: number, subTaskId: number) {
       const board = this.boards.find((board) => board.id === boardId);
       if (board) {
-        const task = board.tasks.find((task) => task.boardId === taskId);
+        const task = board.tasks.find((task) => task.taskId === taskId);
         if (task) {
           const subTask = task.subTasks.find(
             (subTask) => subTask.id === subTaskId
@@ -60,6 +61,19 @@ export const useBoardStore = defineStore("board", {
           } else {
             console.error("Subtask not found");
           }
+        } else {
+          console.error("Task not found");
+        }
+      } else {
+        console.error("Board not found");
+      }
+    },
+    changeTaskStatus(boardId: number, taskId: number, status: string) {
+      const board = this.boards.find((board) => board.id === boardId);
+      if (board) {
+        const task = board.tasks.find((task) => task.taskId === taskId);
+        if (task) {
+          task.status = status;
         } else {
           console.error("Task not found");
         }
