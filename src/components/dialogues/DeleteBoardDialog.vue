@@ -29,7 +29,7 @@ const deleteBoard = () => {
   <div v-if="selectedBoardId">
     <button
       @click="dialogActive = true"
-      class="bg-red-500 text-white py-2 px-4 w-fit rounded hover:bg-red-700"
+      class="bg-red-500 text-white py-2 px-4 w-fit rounded-lg hover:scale-105 transition-all hover:bg-red-700"
     >
       Delete Board
     </button>

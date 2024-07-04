@@ -5,7 +5,7 @@ import DeleteBoardDialog from "./dialogues/DeleteBoardDialog.vue";
 </script>
 
 <template>
-  <div class="flex flex-col p-2">
+  <div class="flex flex-col h-screen overflow-y-scroll">
     <div class="ml-auto p-5 flex items-center gap-2">
       <CreateTaskDialog></CreateTaskDialog>
       <DeleteBoardDialog></DeleteBoardDialog>
