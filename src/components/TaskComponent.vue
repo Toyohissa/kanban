@@ -21,9 +21,9 @@ const selectedBoardId = computed(() => {
 });
 
 const color = computed(() => {
-  return props.desiredStatus === "Todo"
+  return props.desiredStatus === "TODO"
     ? "color: #49C4E5"
-    : props.desiredStatus === "In Progress"
+    : props.desiredStatus === "IN_PROGRESS"
     ? "color: #8471F2"
     : "color: #67E2AE";
 });
@@ -42,7 +42,7 @@ const selectedBoardTasks = computed(() => {
 
 const dialogActive = ref<boolean>(false);
 
-const selectedTask = ref<ITask>();
+const selectedTask = ref<ITask | null>();
 
 const statuses = [
   { value: "TODO", text: "Todo" },
@@ -124,14 +124,20 @@ const readableStatus = computed(() => {
   }
   return "";
 });
+
+const deleteTask = () => {
+  if (!selectedBoardId.value || !selectedTask.value) return;
+
+  useBoard.deleteTodo(selectedBoardId.value, selectedTask.value.taskId);
+
+  dialogActive.value = false;
+  selectedTask.value = null;
+};
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div
-      v-if="selectedBoardTasks?.length"
-      class="text-[#828FA3] flex items-center gap-3"
-    >
+  <div v-if="selectedBoardId" class="flex flex-col gap-2">
+    <div class="text-[#828FA3] flex items-center gap-3">
       <i class="fa-solid fa-circle" :style="color"></i>
       <h1>{{ props.statusToShow }}</h1>
       <h1>
@@ -158,73 +164,81 @@ const readableStatus = computed(() => {
       :closeable="true"
     >
       <div
-        class="w-[400px] bg-white p-5 rounded-t-lg h-[500px] flex flex-col gap-5 overflow-y-scroll"
+        class="w-[400px] bg-white p-5 rounded-t-lg h-[500px] flex flex-col justify-between overflow-y-scroll"
       >
-        <h1 class="font-bold">{{ selectedTask.title }}</h1>
+        <div class="flex flex-col gap-5">
+          <h1 class="font-bold">{{ selectedTask.title }}</h1>
 
-        <p class="text-[#828FA3]">{{ selectedTask.description }}</p>
+          <p class="text-[#828FA3]">{{ selectedTask.description }}</p>
 
-        <div class="flex flex-col gap-2">
-          <h1>
-            Subtasks ({{ doneSubtasks.doneQuantity }} of
-            {{ doneSubtasks.subTasks }})
-          </h1>
-          <ul class="flex flex-col gap-2">
-            <li
-              class="flex items-center gap-2 cursor-pointer"
-              v-for="subTask in selectedTask.subTasks"
-              :key="subTask.id"
-              @click="() => changeSubtaskStatus(subTask.id)"
-            >
-              <div
-                class="bg-[#E4EBFA] flex items-center w-full gap-3 p-2 rounded-lg"
+          <div class="flex flex-col gap-2">
+            <h1>
+              Subtasks ({{ doneSubtasks.doneQuantity }} of
+              {{ doneSubtasks.subTasks }})
+            </h1>
+            <ul class="flex flex-col gap-2">
+              <li
+                class="flex items-center gap-2 cursor-pointer"
+                v-for="subTask in selectedTask.subTasks"
+                :key="subTask.id"
+                @click="() => changeSubtaskStatus(subTask.id)"
               >
                 <div
-                  :class="subTask.status ? 'bg-[#635fc7]' : 'bg-white'"
-                  class="flex items-center h-6 w-6 justify-center border rounded-lg p-1 transition-all text-white"
+                  class="bg-[#E4EBFA] flex items-center w-full gap-3 p-2 rounded-lg"
                 >
-                  <i
-                    v-if="subTask.status"
-                    class="fa-solid fa-check"
-                    style="color: #ffffff"
-                  ></i>
+                  <div
+                    :class="subTask.status ? 'bg-[#635fc7]' : 'bg-white'"
+                    class="flex items-center h-6 w-6 justify-center border rounded-lg p-1 transition-all text-white"
+                  >
+                    <i
+                      v-if="subTask.status"
+                      class="fa-solid fa-check"
+                      style="color: #ffffff"
+                    ></i>
+                  </div>
+                  {{ subTask.title }}
                 </div>
-                {{ subTask.title }}
-              </div>
-            </li>
-          </ul>
-        </div>
+              </li>
+            </ul>
+          </div>
 
-        <div class="mt-4">
-          <label for="status" class="block text-sm font-medium text-gray-700"
-            >Status</label
-          >
-          <div
-            id="status"
-            @click="toggleDropdown"
-            class="border rounded p-2 outline-none cursor-pointer relative"
-          >
-            <div>{{ readableStatus }}</div>
-            <div
-              :class="
-                statusDropdownActive
-                  ? 'max-h-[200px] shadow-lg border rounded'
-                  : 'max-h-0'
-              "
-              class="absolute flex flex-col gap-2 left-0 top-[50px] overflow-hidden w-full bg-white transition-all"
+          <div class="mt-4">
+            <label for="status" class="block text-sm font-medium text-gray-700"
+              >Status</label
             >
-              <h1
-                v-for="status in statuses"
-                :key="status.value"
-                :class="status.text === readableStatus ? 'bg-[#E4EBFA]' : ''"
-                class="hover:bg-[#E4EBFA] p-2 m-1 rounded-lg"
-                @click.stop="selectStatus(status.value)"
+            <div
+              id="status"
+              @click="toggleDropdown"
+              class="border rounded p-2 outline-none cursor-pointer relative"
+            >
+              <div>{{ readableStatus }}</div>
+              <div
+                :class="
+                  statusDropdownActive
+                    ? 'max-h-[200px] shadow-lg border rounded'
+                    : 'max-h-0'
+                "
+                class="absolute flex flex-col gap-2 left-0 top-[50px] overflow-hidden w-full bg-white transition-all"
               >
-                {{ status.text }}
-              </h1>
+                <h1
+                  v-for="status in statuses"
+                  :key="status.value"
+                  :class="status.text === readableStatus ? 'bg-[#E4EBFA]' : ''"
+                  class="hover:bg-[#E4EBFA] p-2 m-1 rounded-lg"
+                  @click.stop="selectStatus(status.value)"
+                >
+                  {{ status.text }}
+                </h1>
+              </div>
             </div>
           </div>
         </div>
+        <button
+          class="bg-red-500 text-white py-2 px-4 w-fit rounded hover:bg-red-700"
+          @click="deleteTask"
+        >
+          Delete Task
+        </button>
       </div>
     </BaseDialog>
   </div>

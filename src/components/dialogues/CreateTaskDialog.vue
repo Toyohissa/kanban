@@ -14,6 +14,9 @@ const dialogActivate = () => {
 const subTasks = ref<ISubtask[]>([]);
 const title = ref<string>("");
 const description = ref<string>("");
+const titleError = ref<string>("");
+const descriptionError = ref<string>("");
+const subTaskErrors = ref<string[]>([]);
 
 const allBoards = computed(() => {
   return useBoard.getAllBoards;
@@ -26,6 +29,21 @@ const selectedBoardId = computed(() => {
 });
 
 const handleSubmit = () => {
+  titleError.value = title.value ? "" : "Field cannot be empty";
+  descriptionError.value = description.value ? "" : "Field cannot be empty";
+  subTaskErrors.value = subTasks.value.map((subtask) =>
+    subtask.title ? "" : "Field cannot be empty"
+  );
+
+  if (
+    titleError.value ||
+    descriptionError.value ||
+    subTaskErrors.value.some((error) => error)
+  ) {
+    console.error("Validation failed");
+    return;
+  }
+
   const boardId = selectedBoardId.value;
   console.log("Selected Board ID:", boardId);
   if (boardId !== null) {
@@ -60,23 +78,29 @@ const handleSubmit = () => {
         <div class="w-full">
           <h1>Title</h1>
           <input v-model="title" type="text" class="w-full" />
+          <p v-if="titleError" class="text-red-500">{{ titleError }}</p>
         </div>
         <div>
           <h1>Description</h1>
           <input v-model="description" type="text" class="w-full" />
+          <p v-if="descriptionError" class="text-red-500">
+            {{ descriptionError }}
+          </p>
         </div>
         <div class="flex flex-col gap-5">
           <h1>Subtasks</h1>
-          <div
-            class="flex items-center gap-2"
-            v-for="(subtask, index) in subTasks"
-          >
-            <input v-model="subtask.title" type="text" class="w-full" />
-            <i
-              @click="() => subTasks.splice(index, 1)"
-              class="fa-solid fa-xmark cursor-pointer"
-              style="color: #ff0000"
-            ></i>
+          <div class="flex flex-col" v-for="(subtask, index) in subTasks">
+            <div class="flex items-center gap-2">
+              <input v-model="subtask.title" type="text" class="w-full" />
+              <i
+                @click="() => subTasks.splice(index, 1)"
+                class="fa-solid fa-xmark cursor-pointer"
+                style="color: #ff0000"
+              ></i>
+            </div>
+            <p v-if="subTaskErrors[index]" class="text-red-500">
+              {{ subTaskErrors[index] }}
+            </p>
           </div>
           <button
             @click="subTasks.push({ title: '', status: false, id: Date.now() })"

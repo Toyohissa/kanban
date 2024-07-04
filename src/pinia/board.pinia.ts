@@ -81,5 +81,14 @@ export const useBoardStore = defineStore("board", {
         console.error("Board not found");
       }
     },
+    deleteTodo(boardId: number, taskId: number) {
+      const board = this.boards.find((b) => b.id === boardId);
+      if (board) {
+        board.tasks = board.tasks.filter((task) => task.taskId !== taskId);
+      }
+    },
+    deleteBoard(boardId: number) {
+      this.boards = this.boards.filter((board) => board.id !== boardId);
+    },
   },
 });
