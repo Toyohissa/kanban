@@ -34,7 +34,7 @@ const onBoardCreateClick = async () => {
 
 <template>
   <div
-    class="w-[300px] bg-white h-screen overflow-y-scroll pr-4 py-2 text-gray-500"
+    class="w-[300px] bg-white h-screen overflow-y-scroll flex-shrink-0 pr-4 py-2 text-gray-500"
   >
     <h1 class="pl-4 py-3">ALL BOARDS</h1>
     <div :key="Math.random()" v-for="board in boardsToRender" class="mb-1">
